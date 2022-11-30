@@ -1,0 +1,24 @@
+{
+  "properties": {
+    "id": {
+      "type": "long"
+    },
+    "name": {
+      "type": "keyword"
+    },
+    "profile": {
+      "analyzer": "char_analyzer",
+      "type": "text"
+    },
+    "address": {
+      "analyzer": "char_analyzer",
+      "type": "text"
+    },
+    "createTime": {
+      "type": "long"
+    },
+    "updateTime": {
+      "type": "long"
+    }
+  }
+}

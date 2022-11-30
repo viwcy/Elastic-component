@@ -1,0 +1,27 @@
+spring:
+  elasticsearch:
+    rest:
+      uris:
+        - http://192.168.3.28:9200
+  data:
+    elasticsearch:
+      repositories:
+        enabled: true
+  datasource:
+    username: root
+    password: yaoyao0203
+    url: jdbc:mysql://localhost:3306/nacos_micro_mall?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=GMT%2b8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      initial-size: 10
+      max-active: 200
+      max-wait: 2000
+      filters: stat,wall
+      connect-properties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=3000
+      stat-view-servlet:
+        enabled: true
+        reset-enable: false
+        login-username: viwcy
+        login-password: viwcy
+        url-pattern: /druid/*

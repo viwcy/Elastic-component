@@ -1,0 +1,28 @@
+server:
+  port: 9004
+  tomcat:
+    uri-encoding: UTF-8
+spring:
+  application:
+    name: elastic-search
+  profiles:
+    active: local
+
+mybatis-plus:
+  mapper-locations: classpath*:mapper/**/*Mapper.xml
+  global-config:
+    db-type: MYSQL
+  configuration:
+    # 是否开启自动驼峰命名规则映射:从数据库列名到Java属性驼峰命名的类似映射
+    map-underscore-to-camel-case: true
+    #懒加载
+    aggressive-lazy-loading: true
+    #如果查询结果中包含空值的列，则 MyBatis 在映射的时候，不会映射这个字段
+    call-setters-on-nulls: true
+
+logging:
+  level:
+    org.springframework.data.convert: error
+
+log:
+  path: ./logs

@@ -1,0 +1,48 @@
+
+一、修改内存
+find /var/lib/docker/ -name jvm.options
+vi /var/lib/docker/overlay2/c5c011449cb419bb7691cd6755f631b24140e20bc02c6a5dbb265c39d9aafd6e/diff/usr/share/elasticsearch/config/jvm.options
+调整内存为服务器一半
+
+二、禁用内存swap，提升效率
+1）es.yml配置bootstrap.memory_lock
+2）修改文件/etc/security/limits.conf，最后添加以下内容。      
+* soft nofile 65536
+* hard nofile 65536
+* soft nproc 32000
+* hard nproc 32000
+* hard memlock unlimited
+* soft memlock unlimited
+3）修改文件 /etc/systemd/system.conf ，分别修改以下内容。
+DefaultLimitNOFILE=65536
+DefaultLimitNPROC=32000
+DefaultLimitMEMLOCK=infinity
+4）重启系统即可
+
+三、启动
+只需要更改相应的节点name即可
+docker run -d --name data-1 -p 9200:9200 -p 9300:9300 -v /es/config/es.yml:/usr/share/elasticsearch/config/elasticsearch.yml -v /es/logs:/usr/share/elasticsearch/logs -v /es/data/:/usr/share/elasticsearch/data -v /es/plugins/:/usr/share/elasticsearch/plugins elasticsearch:7.6.2
+
+四、支持分词
+1）ik源码打包，releases下复制elasticsearch-analysis-ik-7.6.2.zip至服务器
+2）拷贝elasticsearch-analysis-ik-7.6.2.zip至容器内部的plugins下，unzip解压即可，得到elasticsearch-analysis-ik-7.6.2目录，修改文件名为ik
+3）容器内部的config下的jvm.options文件，新增内容-Djava.security.policy=/usr/share/elasticsearch/plugins/ik/plugin-security.policy
+4）重新启动容器即可，ik分词生效
+
+五、配置安全认证和访问密码
+1）初始化启动之后，进入master节点，生成证书。
+2）拷贝至/usr/share/elasticsearch/config目录下，执行chmod 777 证书，进行赋权操作。
+3）挂载文件es.yml新增：
+              http.cors.allow-headers: Authorization,X-Requested-With,Content-Length,Content-Type
+              bootstrap.memory_lock: true
+              xpack.security.enabled: true
+              xpack.security.transport.ssl.enabled: true
+              xpack.security.transport.ssl.verification_mode: certificate
+              xpack.security.transport.ssl.keystore.path: /usr/share/elasticsearch/config/elastic-certificates.p12
+              xpack.security.transport.ssl.truststore.path: /usr/share/elasticsearch/config/elastic-certificates.p12
+4）生成的证书拷贝至其他节点的/usr/share/elasticsearch/config目录下，执行chmod 777 证书，进行赋权操作，后再新增配置es.yml，内容如步骤3)
+5)重启集群各个节点，全部启动成功之后，在master节点设置密码即可。
+6）es-head访问格式 http://47.98.197.215:9100/?auth_user=elastic&auth_password=密码
+7)新增服务节点之后，同样拷贝原有节点（根目录有elastic-certificates.p12证书）证书至新节点/usr/share/elasticsearch/config目录下，执行chmod 777 证书，进行赋权操作。
+8）es.yml新增步骤3内容，重启即可。
+

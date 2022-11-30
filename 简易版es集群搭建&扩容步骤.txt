@@ -1,0 +1,61 @@
+
+一、服务器选择
+1）master节点，选用2核4g，CentOS7.6，带宽1m即可，部署单节点，耗资1601.40元/年
+2）data节点，选用2核16g，CentOS7.6，带宽1m即可，部署单节点，耗资3621元/年
+
+二、部署
+1）master-1：  
+	   cluster.name: es
+	   node.name: master-1
+	   node.master: true
+	   node.data: false
+	   network.host: 0.0.0.0
+	   network.publish_host: host1
+	   http.port: 9200
+	   transport.tcp.port: 9300
+	   discovery.seed_hosts: ["master1","data1"]
+	   cluster.initial_master_nodes: ["master-1"]
+	   http.cors.enabled: true
+	   http.cors.allow-origin: "*"
+2）data-1：
+	   cluster.name: es
+	   node.name: data-1
+	   node.master: false
+	   node.data: true
+	   network.host: 0.0.0.0
+	   network.publish_host: host2
+	   http.port: 9200
+	   transport.tcp.port: 9300
+	   discovery.seed_hosts: ["master1","data1"]
+	   cluster.initial_master_nodes: ["master-1"]
+	   http.cors.enabled: true
+	   http.cors.allow-origin: "*"
+
+三、扩容部署
+1）master-2：	   
+                   cluster.name: es
+	   node.name: master-2
+	   node.master: true
+	   node.data: false
+	   network.host: 0.0.0.0
+	   network.publish_host: host3
+	   http.port: 9200
+	   transport.tcp.port: 9300
+	   discovery.seed_hosts: ["master1","data1","master-2"]
+	   cluster.initial_master_nodes: ["master-1","master-2"]
+	   http.cors.enabled: true
+	   http.cors.allow-origin: "*"
+2）data-2：
+	   cluster.name: es
+	   node.name: data-2
+	   node.master: false
+	   node.data: true
+	   network.host: 0.0.0.0
+	   network.publish_host: host4
+	   http.port: 9200
+	   transport.tcp.port: 9300
+	   discovery.seed_hosts: ["master1","data1","master-2","data-2"]
+	   cluster.initial_master_nodes: ["master-1","master-2"]	//可选
+	   http.cors.enabled: true
+	   http.cors.allow-origin: "*"
+3）重点：新增data节点之后，需要再次安装和部署ik分词，部署步骤见【ES节点启动注意事项.txt】

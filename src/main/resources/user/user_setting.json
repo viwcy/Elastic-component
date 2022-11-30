@@ -1,0 +1,32 @@
+{
+  "refresh_interval": "1s",
+  "number_of_shards": "3",
+  "number_of_replicas": "1",
+  "index.max_ngram_diff": 20,
+  "analysis": {
+    "analyzer": {
+      "char_analyzer": {
+        "filter": "lowercase",
+        "tokenizer": "char_tokenizer"
+      },
+      "ngram_analyzer": {
+        "tokenizer": "ngram_tokenizer"
+      }
+    },
+    "tokenizer": {
+      "char_tokenizer": {
+        "pattern": "|",
+        "type": "pattern"
+      },
+      "ngram_tokenizer": {
+        "type": "ngram",
+        "min_gram": 1,
+        "max_gram": 20,
+        "token_chars": [
+          "letter",
+          "digit"
+        ]
+      }
+    }
+  }
+}

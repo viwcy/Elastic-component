@@ -1,0 +1,30 @@
+
+例：原有索引A
+1.新增过渡索引B
+2.迁移新数据至新索引，切记使用data节点同步http://116.62.109.32:9200/_reindex	POST
+{
+  "source": {
+    "index": "A",
+    "size": 5000
+  },
+  "dest": {
+    "index": "B"
+  }
+}
+3.删除原有索引A
+4.新增索引A
+5.同步数据
+{
+  "source": {
+    "index": "B",
+    "size": 5000
+  },
+  "dest": {
+    "index": "A"
+  }
+}
+
+扩展：
+1.查看同步任务curl --user elastic:yunlu2022@ -X GET http://47.98.197.215:9200/_tasks?detailed=true&actions=*reindex
+2.停止任务，找到步骤1返回json数据"tasks":"action":"indices:data/write/reindex"的节点
+执行curl --user elastic:yunlu2022@ -X POST http://47.98.197.215:9200/_tasks/node_id:task_id/_cancel

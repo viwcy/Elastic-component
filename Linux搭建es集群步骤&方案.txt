@@ -1,0 +1,107 @@
+
+一、集群部署步骤
+1.安装docker
+2.拉取es指定版本镜像
+3.创建挂载目录
+4.更改内存
+	vim /etc/sysctl.conf，添加vm.max_map_count=262144，刷新
+4.各个节点均要开启防火墙，包括安全组
+   开启防火墙 service firewalld start
+   添加端口 firewall-cmd --permanent --add-port=9200/tcp，firewall-cmd --permanent --add-port=9300/tcp
+   刷新 firewall-cmd --reload
+5.挂载目录添加es配置文件
+注：至少三个master节点，才能保证高可用
+1）初始化部署三个节点，均为master+data，保证高可用，后期数据量上涨或查询并发，适当增加data节点（node.master: false，node.data: true），
+初始化集群配置候选主节点cluster.initial_master_nodes: ["node-1","node-2","node-3"]，后续新增节点则不需要配置该项，每次新增节点，增量补充discovery.seed_hosts即可，
+前面节点未配置也可以，三个节点除node.name和network.publish_host不一样，其他均一致。
+
+cluster.name: es	//集群名称
+node.name: node-2		//节点名称
+node.master: true		//是否有资格竞选master
+node.data: true		//是否data节点
+network.host: 0.0.0.0		//外网访问
+network.publish_host: 1.117.74.113	//与其他ip交互地址，外网
+http.port: 9200		//端口
+transport.tcp.port: 9300	//内部协议端口
+discovery.seed_hosts: ["1.117.242.54","1.117.74.113","121.40.161.112"]	//集群发现节点列表
+cluster.initial_master_nodes: ["node-1","node-2","node-3"]	//候选主节点
+http.cors.enabled: true	//跨域和允许访问，用es-head可视化
+http.cors.allow-origin: "*"
+
+6.依次启动节点，等待集群完成
+查看节点运行日志docker logs -f --tail 100 节点名称
+
+注：重启搭建集群时候，必须删除原有节点的data下面的文件，重新生成新的节点信息。
+
+
+
+二、部署方案：
+1）四节点分角色部署集群，3个4g机器，部署高可用master环形网，1个16g机器，部署data数据节点和client预处理节点。
+2）配置文件：
+master-1：  cluster.name: es
+	   node.name: master-1
+	   node.master: true
+	   node.data: false
+	   network.host: 0.0.0.0
+	   network.publish_host: host1
+	   http.port: 9200
+	   transport.tcp.port: 9300
+	   discovery.seed_hosts: ["master1","master2","master3","data1"]
+	   cluster.initial_master_nodes: ["master-1", "master-2","master-3"]
+	   http.cors.enabled: true
+	   http.cors.allow-origin: "*"
+
+master-2：  cluster.name: es
+	   node.name: master-2
+	   node.master: true
+	   node.data: false
+	   network.host: 0.0.0.0
+	   network.publish_host: host2
+	   http.port: 9200
+	   transport.tcp.port: 9300
+	   discovery.seed_hosts: ["master1","master2","master3","data1"]
+	   cluster.initial_master_nodes: ["master-1", "master-2","master-3"]
+	   http.cors.enabled: true
+	   http.cors.allow-origin: "*"
+
+master-3：  cluster.name: es
+	   node.name: master-3
+	   node.master: true
+	   node.data: false
+	   network.host: 0.0.0.0
+	   network.publish_host: host3
+	   http.port: 9200
+	   transport.tcp.port: 9300
+	   discovery.seed_hosts: ["master1","master2","master3","data1"]
+	   cluster.initial_master_nodes: ["master-1", "master-2","master-3"]
+	   http.cors.enabled: true
+	   http.cors.allow-origin: "*"
+
+data-1：      cluster.name: es
+	   node.name: data-1
+	   node.master: false
+	   node.data: true
+	   network.host: 0.0.0.0
+	   network.publish_host: host4
+	   http.port: 9200
+	   transport.tcp.port: 9300
+	   discovery.seed_hosts: ["master1","master2","master3","data1"]
+	   cluster.initial_master_nodes: ["master-1", "master-2","master-3"]
+	   http.cors.enabled: true
+	   http.cors.allow-origin: "*"
+
+后续扩容添加data节点：
+1)添加节点，配置文件，docker启动
+data-2：      cluster.name: es
+	   node.name: data-2
+	   node.master: false
+	   node.data: true
+	   network.host: 0.0.0.0
+	   network.publish_host: host5
+	   http.port: 9200
+	   transport.tcp.port: 9300
+	   discovery.seed_hosts: ["master1","master2","master3","data1","data2"]
+	   #cluster.initial_master_nodes: ["master-1", "master-2","master-3"]	//一旦形成集群，后续扩容不需要配置该项
+	   http.cors.enabled: true
+	   http.cors.allow-origin: "*"
+2)原有节点discovery.seed_hosts新增新节点的地址ip，避免下次启动忘记（可选）

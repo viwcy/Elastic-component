@@ -1,0 +1,21 @@
+
+一、测试环境
+
+服务器118.31.224.183
+
+Dockerfile：
+# Docker image for springboot file run
+FROM openjdk:8-alpine
+ENV TZ='Asia/Shanghai'
+ADD search-micro-1.0.jar app.jar
+ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-Dspring.profiles.active=dev","-jar","/app.jar"]
+###声明启动端口号
+EXPOSE 9000
+
+脚本和jar存放路径：/search_server
+
+构建镜像：docker build -t search-micro .
+
+创建容器运行：docker run -d -p 9000:9000 --name search-micro -v /search_server/logs/:/logs search-micro
+
+日志挂载目录：/search_server/logs
