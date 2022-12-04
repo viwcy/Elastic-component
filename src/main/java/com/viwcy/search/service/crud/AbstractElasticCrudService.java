@@ -2,6 +2,7 @@ package com.viwcy.search.service.crud;
 
 import com.alibaba.fastjson.JSON;
 import com.viwcy.search.entity.elastic.BaseID;
+import com.viwcy.search.util.IDWorker;
 import org.elasticsearch.action.DocWriteResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
@@ -17,6 +18,7 @@ import org.elasticsearch.common.xcontent.XContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.io.IOException;
@@ -37,6 +39,8 @@ public abstract class AbstractElasticCrudService<T extends BaseID<ID>, ID> imple
 
     @Resource
     private RestHighLevelClient client;
+    @Resource
+    private IDWorker idWorker;
 
     @Override
     public T queryById(ID id) {
@@ -100,6 +104,9 @@ public abstract class AbstractElasticCrudService<T extends BaseID<ID>, ID> imple
 
         try {
             String strId = convertStrId(param.getId());
+            if (StringUtils.isEmpty(strId)) {
+                strId = idWorker.getIdStr();
+            }
             IndexRequest request = new IndexRequest(index()).id(strId).source(JSON.toJSONString(param), XContentType.JSON);
             request.setRefreshPolicy(refreshPolicy);//保持此请求打开，直到刷新使此请求的内容对搜索可见
             client.index(request, RequestOptions.DEFAULT);
@@ -121,6 +128,9 @@ public abstract class AbstractElasticCrudService<T extends BaseID<ID>, ID> imple
             final BulkRequest bulkRequest = new BulkRequest();
             param.forEach(bean -> {
                 String strId = convertStrId(bean.getId());
+                if (StringUtils.isEmpty(strId)) {
+                    strId = idWorker.getIdStr();
+                }
                 IndexRequest request = new IndexRequest(index()).id(strId).source(JSON.toJSONString(bean), XContentType.JSON);
                 bulkRequest.add(request);
             });

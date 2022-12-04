@@ -1,8 +1,10 @@
 spring:
   elasticsearch:
     rest:
+      username: elastic
+      password: yunlu2022@
       uris:
-        - http://192.168.3.28:9200
+        - http://118.31.224.183:9200
   data:
     elasticsearch:
       repositories:
@@ -10,7 +12,7 @@ spring:
   datasource:
     username: root
     password: yaoyao0203
-    url: jdbc:mysql://localhost:3306/nacos_micro_mall?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=GMT%2b8
+    url: jdbc:mysql://localhost:3306/custom?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=GMT%2b8
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.alibaba.druid.pool.DruidDataSource
     druid:
@@ -25,3 +27,8 @@ spring:
         login-username: viwcy
         login-password: viwcy
         url-pattern: /druid/*
+
+snowflake:
+  config:
+    workerId: 0
+    dataCenterId: 0
