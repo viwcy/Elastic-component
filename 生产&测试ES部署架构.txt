@@ -3,12 +3,12 @@
 部署服务器：118.31.224.183（同时部署canal监听binlog）
 容器启动：docker run -d --name es-1 -p 9200:9200 -p 9300:9300 -v /es/config/es.yml:/usr/share/elasticsearch/config/elasticsearch.yml -v /es/logs:/usr/share/elasticsearch/logs -v /es/data/:/usr/share/elasticsearch/data elasticsearch:7.6.2
 model：单节点
-访问url：http://118.31.224.183:9100/?auth_user=elastic&auth_password=yunlu2022@
+访问url：http://118.31.224.183:9100/?auth_user=elastic&auth_password=
 挂载目录：/es/config，/es/data，/es/logs
 
 二、生产环境
 部署服务器：47.98.197.215（master-1），116.62.109.32（data-1）
 容器启动：docker run -d --name 名称 -p 9200:9200 -p 9300:9300 -v /es/config/es.yml:/usr/share/elasticsearch/config/elasticsearch.yml -v /es/logs:/usr/share/elasticsearch/logs -v /es/data/:/usr/share/elasticsearch/data elasticsearch:7.6.2
 model：集群，master和data分角色部署
-访问：http://47.98.197.215:9100/?auth_user=elastic&auth_password=yunlu2022@
+访问：http://47.98.197.215:9100/?auth_user=elastic&auth_password=
 挂载目录：/es/config，/es/data，/es/logs

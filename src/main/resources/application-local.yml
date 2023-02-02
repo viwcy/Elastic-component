@@ -1,10 +1,9 @@
 spring:
   elasticsearch:
     rest:
-      username: elastic
-      password: yunlu2022@
+      username:
+      password:
       uris:
-        - http://118.31.224.183:9200
   data:
     elasticsearch:
       repositories:
